@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OSU Dispenser Install · Logistics &amp; Planning Hub</title>
+  <meta name="description" content="Multi-party logistics and planning hub for the OSU campus-wide dispenser installation — Sofidel, Fastenal, Ohio State, and AA Installation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">OSU</div>
+        <div class="brand-text">
+          <strong>Dispenser Install</strong>
+          <span>Logistics &amp; Planning Hub</span>
+        </div>
+      </div>
+      <nav class="nav" id="nav"><!-- links injected --></nav>
+      <div class="sidebar-foot">
+        <div class="parties" id="sidebarParties"></div>
+        <p class="confid">Confidential · For project stakeholders only</p>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation">☰</button>
+        <div class="topbar-title" id="viewTitle">Overview</div>
+        <div class="topbar-right">
+          <span class="pill pill-window" id="windowPill"></span>
+          <a class="pill pill-ghost" href="#stakeholders">Stakeholders</a>
+        </div>
+      </header>
+      <main class="content" id="view"><!-- view injected --></main>
+      <footer class="appfoot" id="appfoot"></footer>
+    </div>
+  </div>
+
+  <script src="assets/vendor/leaflet/leaflet.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>

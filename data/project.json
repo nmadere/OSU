@@ -1,0 +1,513 @@
+{
+ "meta": {
+  "name": "OSU Dispenser Installation \u2014 Logistics & Planning Hub",
+  "client": "Sofidel",
+  "campus": "The Ohio State University \u2014 Columbus Campus",
+  "installer": "AA Installation LLC",
+  "logistics": "Fastenal (Government Sales)",
+  "preparedBy": "Andrew Madere, AA Installation LLC",
+  "window": "Spring/Summer 2026",
+  "confidential": true,
+  "summary": "Campus-wide dispenser rollout across 262 buildings, organized by physical quadrant first and department second to maximize daily install output. FOD buildings receive towel dispensers only (tissue not in scope at this time).",
+  "scopeNote": "Confirmed program scope is ~12,054 dispensers (FOD towel-only). The building dataset below reflects ~10,586 GIS-mapped units; counts are reconciled as departments finalize FOD/orders."
+ },
+ "metrics": {
+  "buildings": 262,
+  "dispensers": 10586,
+  "departments": 5,
+  "quadrants": 4,
+  "confirmedScope": 12054
+ },
+ "departments": [
+  {
+   "code": "FOD",
+   "name": "Facilities Operations & Development",
+   "color": "#BB0000",
+   "contact": "Morgan Foor / Matt Cyr",
+   "contactEmail": "foor.20@osu.edu",
+   "towel": 2797,
+   "tissue": 0,
+   "total": 2797,
+   "note": "Towel dispensers ONLY. Tissue (toilet paper) is NOT in scope at this time. No tissue may be installed in any FOD building without a written change order.",
+   "phase": 1
+  },
+  {
+   "code": "ATH",
+   "name": "Athletics",
+   "color": "#A05A00",
+   "contact": "Abbie Hollon",
+   "contactEmail": "",
+   "towel": 510,
+   "tissue": 1212,
+   "total": 1722,
+   "note": "Confirmed 7/29/25; bumped for missing buildings (plan basis 550 manual towel / 1,300 quad tissue). Ohio Stadium is the anchor at ~1,023 units.",
+   "phase": 2
+  },
+  {
+   "code": "BA",
+   "name": "Business Advancement",
+   "color": "#1F6FB2",
+   "contact": "Mike Hollon",
+   "contactEmail": "",
+   "towel": 199,
+   "tissue": 469,
+   "total": 668,
+   "note": "Includes attic stock. Schottenstein Center is the largest BA building. Confirmed 8/4/25.",
+   "phase": 2
+  },
+  {
+   "code": "SL",
+   "name": "Student Life",
+   "color": "#2E7D32",
+   "contact": "Bridget Hildreth",
+   "contactEmail": "",
+   "towel": 549,
+   "tissue": 4709,
+   "total": 5258,
+   "note": "Most complex department \u2014 60+ buildings, residential towers with access-hour restrictions. Confirmed 4/14. NE residential towers first (Jones/Drackett/Taylor/Houston).",
+   "phase": 3
+  },
+  {
+   "code": "DS",
+   "name": "Dining Services",
+   "color": "#6A1B9A",
+   "contact": "Nate Darder",
+   "contactEmail": "",
+   "towel": 103,
+   "tissue": 38,
+   "total": 141,
+   "note": "38 confirmed locations, swept opportunistically while crews are in co-located buildings. Confirmed 7/29/25.",
+   "phase": 4
+  }
+ ],
+ "quadrants": [
+  {
+   "code": "Southeast",
+   "label": "Southeast \u2014 S. of Lane / E. of 315",
+   "priority": 1,
+   "rationale": "Highest density; largest buildings; central academic core.",
+   "fodBldgs": 92,
+   "fodTowel": 1688
+  },
+  {
+   "code": "Northeast",
+   "label": "Northeast \u2014 N. of Lane / E. of 315",
+   "priority": 2,
+   "rationale": "Science/research cluster; tight; natural SE continuation.",
+   "fodBldgs": 20,
+   "fodTowel": 452
+  },
+  {
+   "code": "Southwest",
+   "label": "Southwest \u2014 S. of Lane / W. of 315",
+   "priority": 3,
+   "rationale": "Kinnear/Kenny Rd corridor; research & specialty buildings; vehicle required.",
+   "fodBldgs": 20,
+   "fodTowel": 298
+  },
+  {
+   "code": "Northwest",
+   "label": "Northwest \u2014 N. of Lane / W. of 315",
+   "priority": 4,
+   "rationale": "Waterman Farm area; low density; mop-up last.",
+   "fodBldgs": 10,
+   "fodTowel": 79
+  }
+ ],
+ "phases": [
+  {
+   "n": 1,
+   "name": "FOD \u2014 All Quadrants (Towel Only)",
+   "depts": [
+    "FOD"
+   ],
+   "units": "~2,912 towel",
+   "teams": "1\u20132",
+   "seq": "SE \u2192 NE \u2192 SW \u2192 NW (routing follows density). Tissue NOT in scope.",
+   "duration": "~6\u201310 days"
+  },
+  {
+   "n": 2,
+   "name": "Athletics + Business Advancement",
+   "depts": [
+    "ATH",
+    "BA"
+   ],
+   "units": "~2,518",
+   "teams": "2",
+   "seq": "Deploy in parallel with Phase 1 against the SE/NE footprint. Lead ATH with Ohio Stadium (~1,023).",
+   "duration": "~9\u201313 days"
+  },
+  {
+   "n": 3,
+   "name": "Student Life (NE residential first)",
+   "depts": [
+    "SL"
+   ],
+   "units": "~6,457",
+   "teams": "3 (peak)",
+   "seq": "Residential towers \u2014 high count per building, access-hour restricted. NE first (Jones Tower = 489 tissue alone).",
+   "duration": "~11\u201322 days"
+  },
+  {
+   "n": 4,
+   "name": "Student Life Tail + Dining Services",
+   "depts": [
+    "SL",
+    "DS"
+   ],
+   "units": "~688",
+   "teams": "1",
+   "seq": "DS (38 locations) swept opportunistically in already-visited buildings. Smallest crew deployment.",
+   "duration": "~2\u20134 days"
+  }
+ ],
+ "crewModel": {
+  "base": "3 crew members per team \u00b7 base case 150 dispensers/team/day",
+  "scenarios": [
+   {
+    "name": "Conservative",
+    "rate": "100/day/team",
+    "duration": "~10 weeks (incl. 2 wks punch list)",
+    "key": "Scattered buildings, restricted access"
+   },
+   {
+    "name": "Base Case",
+    "rate": "150/day/team",
+    "duration": "~7 weeks (incl. 2 wks punch list)",
+    "key": "Mixed building sizes, standard access"
+   },
+   {
+    "name": "Best Case",
+    "rate": "200/day/team",
+    "duration": "~6 weeks (incl. 2 wks punch list)",
+    "key": "Large clusters, escort available"
+   }
+  ]
+ },
+ "oldDispenser": [
+  {
+   "opt": "A",
+   "title": "OSU Custodial Removes",
+   "detail": "Best case. AA installs only; OSU custodial handles removal. Recommended.",
+   "rec": true
+  },
+  {
+   "opt": "B",
+   "title": "On-Site Dumpster Disposal",
+   "detail": "Crews dispose on-site via dumpsters per building/zone. Cargo vans sufficient.",
+   "rec": false
+  },
+  {
+   "opt": "C",
+   "title": "Return to Central Location",
+   "detail": "Requires box trucks. Adds 30\u201340% transit time. Not preferred.",
+   "rec": false
+  }
+ ],
+ "logistics": {
+  "deliveryTo": "AA Installation office \u2014 1770 Orleans St., Mandeville, LA 70448",
+  "staging": [
+   "Dedicated on-campus staging location must be confirmed before Day 1.",
+   "New dispensers pre-sorted by building/zone the evening before each deployment day.",
+   "FOD stages towel dispensers only \u2014 no tissue staged for FOD buildings.",
+   "Cover-plate inventory confirmed before staging \u2014 tiled-surface survey needed.",
+   "Joint inventory check (AA Installation + Fastenal/OSU) required before first crew deploys."
+  ],
+  "stagingCandidates": [
+   "Fastenal Circleville",
+   "AA Installation (staging)",
+   "FOD Stockroom"
+  ],
+  "liaison": "OSU campus liaison strongly recommended \u2014 golf-cart accessible, full work days per active crew zone. Reduces per-building wait from 15\u201320 min to near-zero."
+ },
+ "stakeholders": [
+  {
+   "org": "Sofidel",
+   "role": "Dispenser brand / client",
+   "color": "#1F6FB2",
+   "people": [
+    {
+     "name": "Jorge Mtanous",
+     "email": "Jorge.Mtanous@sofidel.com"
+    },
+    {
+     "name": "Jordan Johnson",
+     "email": "jordan.johnson@sofidel.com"
+    },
+    {
+     "name": "Richard Allen",
+     "email": "richard.allen@sofidel.com"
+    }
+   ]
+  },
+  {
+   "org": "Fastenal",
+   "role": "Logistics / supply partner (Government Sales)",
+   "color": "#A05A00",
+   "people": [
+    {
+     "name": "A. Stachow",
+     "email": "astachow@fastenal.com"
+    },
+    {
+     "name": "Jo Graham",
+     "email": "jograham@fastenal.com"
+    }
+   ]
+  },
+  {
+   "org": "The Ohio State University",
+   "role": "Campus / facilities owner",
+   "color": "#BB0000",
+   "people": [
+    {
+     "name": "Matt Cyr (FOD)",
+     "email": "cyr.7@osu.edu"
+    },
+    {
+     "name": "Morgan Foor (FOD)",
+     "email": "foor.20@osu.edu"
+    },
+    {
+     "name": "Abbie Hollon (Athletics)",
+     "email": ""
+    },
+    {
+     "name": "Bridget Hildreth (Student Life)",
+     "email": ""
+    },
+    {
+     "name": "Nate Darder (Dining Services)",
+     "email": ""
+    },
+    {
+     "name": "Mike Hollon (Business Advancement)",
+     "email": ""
+    }
+   ]
+  },
+  {
+   "org": "AA Installation LLC",
+   "role": "Installer",
+   "color": "#2E7D32",
+   "people": [
+    {
+     "name": "Andrew Madere \u2014 Customer Service / Lead",
+     "email": "admin@aainstalls.com"
+    },
+    {
+     "name": "Nicole Madere \u2014 Admin / Operations",
+     "email": "admin@aainstalls.com"
+    },
+    {
+     "name": "Chris Knight \u2014 Lead Installer",
+     "email": ""
+    },
+    {
+     "name": "Brighton Martin \u2014 Installer / Scheduling",
+     "email": ""
+    },
+    {
+     "name": "Preston Dufrene \u2014 Installer",
+     "email": ""
+    }
+   ]
+  }
+ ],
+ "questions": [
+  {
+   "id": "Q2",
+   "cat": "Scope",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "Confirm total dispenser count including ~830 unmatched buildings."
+  },
+  {
+   "id": "Q3",
+   "cat": "Scope",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "Is a pre-install campus survey required? Is the cost covered if yes?"
+  },
+  {
+   "id": "Q4",
+   "cat": "Materials",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "Are new dispensers pre-kitted by building, or delivered in bulk by type?"
+  },
+  {
+   "id": "Q5",
+   "cat": "Materials",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "Are cover plates required? Quantity, surface types, supplier?"
+  },
+  {
+   "id": "Q6",
+   "cat": "Materials",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "Wall-mount hardware spec? Any drilling-prohibited locations?"
+  },
+  {
+   "id": "Q7",
+   "cat": "Materials",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "FOD manual vs. auto towel split per building (needed for crew kitting)."
+  },
+  {
+   "id": "Q8",
+   "cat": "Logistics",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "Plan for old dispensers \u2014 Scenario A (custodial), B (dumpster), or C (return)?"
+  },
+  {
+   "id": "Q9",
+   "cat": "Logistics",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "Confirmed staging and receiving location on campus?"
+  },
+  {
+   "id": "Q10",
+   "cat": "Access",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "Dedicated OSU campus liaison per active crew zone?"
+  },
+  {
+   "id": "Q11",
+   "cat": "Access",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "Which buildings require physical keys, keycards, or escort?"
+  },
+  {
+   "id": "Q12",
+   "cat": "Access",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "Access-hour restrictions per building type?"
+  },
+  {
+   "id": "Q13",
+   "cat": "Access",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "Blackout dates \u2014 athletic events, commencement, residential move-in/out?"
+  },
+  {
+   "id": "Q14",
+   "cat": "Timeline",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "Confirmed install window \u2014 Spring Break or Summer Break?"
+  },
+  {
+   "id": "Q15",
+   "cat": "Timeline",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "Hard completion deadline and any penalty clause?"
+  },
+  {
+   "id": "Q16",
+   "cat": "Timeline",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "Labeled campus map with department boundary overlays?"
+  },
+  {
+   "id": "Q19",
+   "cat": "Vendor",
+   "owner": "Customer",
+   "status": "Open",
+   "q": "Vendor onboarding \u2014 COI, W-9, compliance, vendor portal?"
+  },
+  {
+   "id": "Q20",
+   "cat": "Internal",
+   "owner": "AA Installation",
+   "status": "Open",
+   "q": "Confirm crew availability for the target install window."
+  },
+  {
+   "id": "Q21",
+   "cat": "Internal",
+   "owner": "AA Installation",
+   "status": "Open",
+   "q": "Run lodging (Airbnb) quote for Columbus for target duration."
+  },
+  {
+   "id": "Q22",
+   "cat": "Internal",
+   "owner": "AA Installation",
+   "status": "Open",
+   "q": "Vehicle logistics \u2014 AA Installation vans or local rental?"
+  },
+  {
+   "id": "Q23",
+   "cat": "Internal",
+   "owner": "AA Installation",
+   "status": "Open",
+   "q": "Reactor Building (0158) \u2014 include or exclude from scope? Requires Reactor Director clearance."
+  },
+  {
+   "id": "Q1",
+   "cat": "Scope",
+   "owner": "Resolved",
+   "status": "Resolved",
+   "q": "FOD tissue excluded (towel only). ATH=550/1,300. DS=38 locations/167 units. Total=12,054."
+  }
+ ],
+ "specialAccess": [
+  {
+   "building": "Reactor Building (0158)",
+   "note": "Excluded from standard FOD scheduling. Formal clearance from the OSU Reactor Director required before inclusion. Marked FEED LOCATION X."
+  },
+  {
+   "building": "Medical / dental (Postle, Prior, Biomedical)",
+   "note": "Confirm escort protocol and BSL ratings before crew entry."
+  },
+  {
+   "building": "Residential towers (SL)",
+   "note": "Per-building access windows, quiet hours, and custodial schedules must be confirmed before Phase 3 is finalized."
+  }
+ ],
+ "documents": [
+  {
+   "title": "OSU Approach Plan v5 (Quadrant)",
+   "type": "PDF",
+   "note": "Primary installation approach \u2014 scope, phases, crew model, open questions."
+  },
+  {
+   "title": "Footprint Specs \u2014 The Ohio State",
+   "type": "PDF",
+   "note": "Dispenser footprint / mounting specifications."
+  },
+  {
+   "title": "OSU Building Location Data",
+   "type": "XLSX",
+   "note": "GIS-verified coordinates and dispenser counts (source of this hub's map)."
+  },
+  {
+   "title": "Sofidel Dispenser Info",
+   "type": "PDF",
+   "note": "Dispenser product reference."
+  },
+  {
+   "title": "424938 & 424939 TOPS",
+   "type": "PDF",
+   "note": "Order / TOPS reference documents."
+  },
+  {
+   "title": "Week 1 Plan",
+   "type": "XLSX",
+   "note": "First-week deployment plan."
+  }
+ ]
+}
