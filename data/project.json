@@ -509,5 +509,92 @@
    "type": "XLSX",
    "note": "First-week deployment plan."
   }
- ]
+ ],
+ "schedule": {
+  "status": "Proposed \u2014 pending confirmation of the install window (Q14) and OSU blackout dates (Q13).",
+  "phases": [
+   {
+    "n": 1,
+    "name": "Phase 1 \u2014 FOD (Towel Only)",
+    "dept": "FOD",
+    "start": "2026-06-08",
+    "end": "2026-06-19",
+    "color": "#BB0000"
+   },
+   {
+    "n": 2,
+    "name": "Phase 2 \u2014 Athletics + Business Adv.",
+    "dept": "ATH",
+    "start": "2026-06-15",
+    "end": "2026-06-30",
+    "color": "#A05A00"
+   },
+   {
+    "n": 3,
+    "name": "Phase 3 \u2014 Student Life (NE first)",
+    "dept": "SL",
+    "start": "2026-06-22",
+    "end": "2026-07-17",
+    "color": "#2E7D32"
+   },
+   {
+    "n": 4,
+    "name": "Phase 4 \u2014 SL Tail + Dining Services",
+    "dept": "DS",
+    "start": "2026-07-13",
+    "end": "2026-07-17",
+    "color": "#6A1B9A"
+   },
+   {
+    "n": 5,
+    "name": "Punch List & Sign-off",
+    "dept": "",
+    "start": "2026-07-20",
+    "end": "2026-07-31",
+    "color": "#666666"
+   }
+  ],
+  "milestones": [
+   {
+    "date": "2026-06-01",
+    "label": "Fastenal alignment call \u00b7 confirm window"
+   },
+   {
+    "date": "2026-06-05",
+    "label": "Joint inventory check \u00b7 staging ready"
+   },
+   {
+    "date": "2026-06-08",
+    "label": "Day 1 \u2014 crews deploy (SE quadrant)"
+   },
+   {
+    "date": "2026-07-31",
+    "label": "Target completion"
+   }
+  ],
+  "blackouts": [
+   {
+    "start": "2026-07-03",
+    "end": "2026-07-05",
+    "label": "Independence Day holiday",
+    "type": "Holiday",
+    "confirmed": false
+   },
+   {
+    "start": "2026-08-02",
+    "end": "2026-08-02",
+    "label": "Summer Commencement (typical)",
+    "type": "Event",
+    "confirmed": false
+   },
+   {
+    "start": "2026-08-18",
+    "end": "2026-08-23",
+    "label": "Autumn residential move-in (typical)",
+    "type": "Residential",
+    "confirmed": false
+   }
+  ],
+  "blackoutNote": "Blackout dates are typical OSU patterns shown for planning only. Athletic events, commencement, and residential move-in/out windows must be confirmed with OSU (Open Question Q13) before the schedule is finalized."
+ }
 }

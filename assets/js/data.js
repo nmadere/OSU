@@ -1,12 +1,11 @@
-// Central data loader. Loads the two JSON datasets once and caches them.
+// Central data loader. Routes through the backend layer, which serves either
+// local JSON (static mode) or Supabase (live mode) transparently.
+import { fetchBuildings, fetchProject } from './backend.js';
 let _cache = null;
 
-export async function loadData() {
-  if (_cache) return _cache;
-  const [buildings, project] = await Promise.all([
-    fetch('data/buildings.json').then(r => r.json()),
-    fetch('data/project.json').then(r => r.json()),
-  ]);
+export async function loadData(force = false) {
+  if (_cache && !force) return _cache;
+  const [buildings, project] = await Promise.all([fetchBuildings(), fetchProject()]);
   _cache = { buildings, project };
   return _cache;
 }

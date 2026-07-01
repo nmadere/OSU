@@ -1,5 +1,7 @@
 import { DEPT_COLORS, QUAD_COLORS, DEPTS } from './data.js';
-import { $, el, n, esc, sum, groupBy, getNotes, pushNote, getOverrides, setOverride } from './util.js';
+import { $, el, n, esc, sum, groupBy } from './util.js';
+import * as backend from './backend.js';
+import { canEdit } from './app.js';
 
 const deptBadge = (d) => `<span class="badge dept-${d}">${d}</span>`;
 
@@ -337,13 +339,10 @@ export function stakeholdersView({ project }) {
 
 /* ---------------- OPEN QUESTIONS ---------------- */
 export function questionsView({ project }) {
-  const ov = getOverrides('qstatus');
-  const eff = (q) => ov[q.id] || q.status;
-  const open = project.questions.filter(q => eff(q) === 'Open');
   const cats = [...new Set(project.questions.map(q => q.cat))];
   return `
   <div class="section-head"><h2>Open Questions &amp; Decisions</h2>
-    <p>The live decision register. ${open.length} items are awaiting an owner response before the Gantt can be finalized. Mark items resolved as answers come in (saved in this browser).</p></div>
+    <p>The live decision register. <span id="qOpenCount">Items</span> awaiting an owner response before the Gantt can be finalized. Mark items resolved as answers come in.</p></div>
   <div class="toolbar">
     <select id="qCat"><option value="">All categories</option>${cats.map(c=>`<option>${esc(c)}</option>`).join('')}</select>
     <select id="qStatus"><option value="">All statuses</option><option>Open</option><option>Resolved</option></select>
@@ -353,26 +352,36 @@ export function questionsView({ project }) {
     <thead><tr><th>#</th><th>Category</th><th>Owner</th><th>Question</th><th>Status</th></tr></thead>
     <tbody id="qBody"></tbody>
   </table></div>
-  <p class="note-banner">Resolving an item here updates your local view only — confirm changes with the team to update the shared record.</p>`;
+  <p class="note-banner" id="qBanner"></p>`;
 }
-export function initQuestions({ project }) {
+export async function initQuestions({ project }) {
   const cat = $('#qCat'), st = $('#qStatus'), body = $('#qBody');
-  const ov = () => getOverrides('qstatus');
-  function eff(q){ return ov()[q.id] || q.status; }
+  let overrides = await backend.getQuestionOverrides();
+  const eff = (q) => overrides[q.id] || q.status;
+  const editable = canEdit();
+  $('#qBanner').textContent = backend.live()
+    ? (editable ? 'Changes are shared live with all stakeholders.' : 'Sign in to update statuses. Changes made by the team are shown live.')
+    : 'Resolving an item updates your local view only — confirm with the team to update the shared record.';
   function render() {
+    const openN = project.questions.filter(q => eff(q) === 'Open').length;
+    const oc = $('#qOpenCount'); if (oc) oc.textContent = `${openN} item${openN===1?'':'s'}`;
     const rows = project.questions.filter(q => (!cat.value || q.cat===cat.value) && (!st.value || eff(q)===st.value))
       .sort((a,b)=> (eff(a)==='Open'?0:1)-(eff(b)==='Open'?0:1));
     body.innerHTML = rows.map(q => {
       const s = eff(q);
       const cls = s==='Resolved'?'status-resolved':'status-open';
+      const btn = editable ? `<button class="btn btn-ghost sm" data-id="${q.id}" data-to="${s==='Open'?'Resolved':'Open'}" style="margin-left:6px">${s==='Open'?'Mark resolved':'Reopen'}</button>` : '';
       return `<tr class="qrow"><td><b>${esc(q.id)}</b></td><td><span class="tag">${esc(q.cat)}</span></td>
         <td>${esc(q.owner)}</td><td>${esc(q.q)}</td>
-        <td><span class="badge ${cls}">${s}</span>
-          <button class="btn btn-ghost sm" data-id="${q.id}" data-to="${s==='Open'?'Resolved':'Open'}" style="margin-left:6px">${s==='Open'?'Mark resolved':'Reopen'}</button></td></tr>`;
+        <td><span class="badge ${cls}">${s}</span>${btn}</td></tr>`;
     }).join('');
-    body.querySelectorAll('button').forEach(b => b.onclick = () => { setOverride('qstatus', b.dataset.id, b.dataset.to); render(); });
+    body.querySelectorAll('button').forEach(b => b.onclick = async () => {
+      await backend.setQuestionOverride(b.dataset.id, b.dataset.to);
+      overrides = await backend.getQuestionOverrides(); render();
+    });
   }
   [cat, st].forEach(e => e.onchange = render);
+  backend.onChange(async () => { overrides = await backend.getQuestionOverrides(); render(); });
   render();
 }
 
@@ -390,38 +399,115 @@ export function documentsView({ project }) {
   <div class="callout" style="margin-top:14px"><b>Note on data sources.</b> The campus map and building tables are generated from <i>OSU Building Location Data</i> (GIS-verified). Dispenser scope figures follow <i>OSU Approach Plan v5</i>. Confidential commercial terms (unit pricing, billing) are intentionally excluded from this shared hub.</div>`;
 }
 
+/* ---------------- SCHEDULE / GANTT ---------------- */
+const DAY = 86400000;
+const parseD = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+const fmtD = (dt) => dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+
+export function scheduleView({ project }) {
+  const sc = project.schedule;
+  const phases = sc.phases;
+  const allDates = phases.flatMap(p => [parseD(p.start), parseD(p.end)])
+    .concat(sc.blackouts.flatMap(b => [parseD(b.start), parseD(b.end)]))
+    .concat(sc.milestones.map(m => parseD(m.date)));
+  let min = new Date(Math.min(...allDates)), max = new Date(Math.max(...allDates));
+  // pad to whole weeks
+  min = new Date(min.getTime() - 3 * DAY); max = new Date(max.getTime() + 3 * DAY);
+  const span = (max - min) / DAY;
+  const pct = (dt) => ((dt - min) / DAY / span) * 100;
+  const wid = (a, b) => ((parseD(b) - parseD(a)) / DAY / span) * 100;
+
+  // month gridlines
+  const months = [];
+  let cur = new Date(Date.UTC(min.getUTCFullYear(), min.getUTCMonth(), 1));
+  while (cur <= max) { months.push(new Date(cur)); cur = new Date(Date.UTC(cur.getUTCFullYear(), cur.getUTCMonth() + 1, 1)); }
+
+  const bars = phases.map(p => {
+    const left = pct(parseD(p.start)), w = Math.max(wid(p.start, p.end), 1.5);
+    return `<div class="gantt-row">
+      <div class="gantt-label">${esc(p.name)}</div>
+      <div class="gantt-track">
+        <div class="gantt-bar" style="left:${left}%;width:${w}%;background:${p.color}" title="${esc(p.start)} → ${esc(p.end)}">
+          <span>${fmtD(parseD(p.start))} – ${fmtD(parseD(p.end))}</span></div>
+      </div></div>`;
+  }).join('');
+
+  const blackoutBands = sc.blackouts.map(b => {
+    const left = pct(parseD(b.start)), w = Math.max(wid(b.start, b.end) + (100 / span / 2), 0.6);
+    return `<div class="gantt-blackout" style="left:${left}%;width:${w}%" title="${esc(b.label)}"></div>`;
+  }).join('');
+  const monthMarks = months.map(mo => `<div class="gantt-grid" style="left:${pct(mo)}%"><span>${mo.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}</span></div>`).join('');
+
+  return `
+  <div class="section-head"><h2>Schedule &amp; Timeline</h2>
+    <p>Proposed phase Gantt with blackout bands. ${esc(sc.status)}</p></div>
+  <div class="callout amber">${esc(sc.status)}</div>
+
+  <div class="card pad" style="margin-top:14px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+      <h3>Phase Gantt</h3>
+      <span class="muted" style="font-size:11.5px"><span class="dot" style="background:#e9b7b7"></span> shaded = proposed blackout</span>
+    </div>
+    <div class="gantt">
+      <div class="gantt-grids">${monthMarks}${blackoutBands}</div>
+      ${bars}
+    </div>
+  </div>
+
+  <div class="grid cols-2" style="margin-top:14px">
+    <div class="card pad">
+      <h3>Key milestones</h3>
+      <ul class="checklist">
+        ${sc.milestones.map(m => `<li><span class="mk">◆</span><div><b>${fmtD(parseD(m.date))}, ${parseD(m.date).getUTCFullYear()}</b> — ${esc(m.label)}</div></li>`).join('')}
+      </ul>
+    </div>
+    <div class="card pad">
+      <h3>Blackout dates</h3>
+      <table><thead><tr><th>Window</th><th>Type</th><th></th></tr></thead><tbody>
+        ${sc.blackouts.map(b => `<tr><td><b>${fmtD(parseD(b.start))}${b.start!==b.end?' – '+fmtD(parseD(b.end)):''}</b><div class="muted" style="font-size:11.5px">${esc(b.label)}</div></td><td><span class="tag">${esc(b.type)}</span></td><td>${b.confirmed?'<span class="badge status-resolved">Confirmed</span>':'<span class="badge status-open">Unconfirmed</span>'}</td></tr>`).join('')}
+      </tbody></table>
+      <p class="note-banner">${esc(sc.blackoutNote)}</p>
+    </div>
+  </div>`;
+}
+
 /* ---------------- UPDATES (local collaboration) ---------------- */
 export function updatesView() {
+  const shared = backend.live();
+  const gated = shared && !canEdit();
   return `
   <div class="section-head"><h2>Updates &amp; Coordination Notes</h2>
-    <p>Post coordination notes and announcements for the team. Notes are saved in your browser — a lightweight stand-in until the shared backend is connected (see project README).</p></div>
+    <p>${shared ? 'Coordination notes are shared live across all stakeholders.' : 'Post coordination notes for the team. Notes are saved in your browser until the shared backend is connected (see README).'}</p></div>
   <div class="grid" style="grid-template-columns:1fr 1.4fr;gap:14px">
     <div class="card pad">
       <h3>New note</h3>
+      ${gated ? '<div class="callout amber">Sign in to post shared notes.</div>' : `
       <div class="note-form">
         <input id="nAuthor" placeholder="Your name / org" />
         <select id="nTag"><option>Announcement</option><option>Logistics</option><option>Access</option><option>Scheduling</option><option>Question</option></select>
         <textarea id="nBody" rows="4" placeholder="Write an update for the stakeholders…"></textarea>
         <button class="btn" id="nPost">Post note</button>
-      </div>
+      </div>`}
     </div>
     <div class="card pad">
       <h3>Recent notes</h3>
-      <div id="noteList"></div>
+      <div id="noteList"><p class="muted">Loading…</p></div>
     </div>
   </div>`;
 }
-export function initUpdates() {
-  function render() {
-    const notes = getNotes('notes');
+export async function initUpdates() {
+  async function render() {
+    const notes = await backend.listNotes();
     $('#noteList').innerHTML = notes.length ? notes.map(x => `
       <div class="note"><div class="meta"><span class="tag">${esc(x.tag)}</span><b>${esc(x.author||'Anonymous')}</b><span>${esc(x.when)}</span></div>${esc(x.body)}</div>`).join('')
       : '<p class="muted">No notes yet. Post the first coordination update.</p>';
   }
-  $('#nPost').onclick = () => {
+  const post = $('#nPost');
+  if (post) post.onclick = async () => {
     const body = $('#nBody').value.trim(); if (!body) return;
-    pushNote('notes', { author: $('#nAuthor').value.trim(), tag: $('#nTag').value, body, when: new Date().toLocaleString() });
+    await backend.addNote({ author: $('#nAuthor').value.trim(), tag: $('#nTag').value, body });
     $('#nBody').value=''; render();
   };
+  backend.onChange(render);
   render();
 }

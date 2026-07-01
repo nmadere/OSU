@@ -17,6 +17,7 @@ open-questions register so **Sofidel**, **Fastenal**, **Ohio State**, and
 | **Campus Map** | All 262 buildings plotted from GIS coordinates; color by department / quadrant / status; size by dispenser count |
 | **Buildings** | Searchable, filterable, sortable table of every building; CSV export |
 | **Phases & Crew** | 4-quadrant routing, the four install phases, crew deployment scenarios, special-access constraints |
+| **Schedule** | Proposed phase Gantt with blackout bands, key milestones, and a blackout-date register (pending Q13/Q14) |
 | **Logistics** | Receiving & staging, old-dispenser handling (Scenarios A/B/C), campus-liaison request |
 | **Stakeholders** | Directory across all four parties + OSU department leads |
 | **Open Questions** | Live decision register (owners + status) gating the finalized Gantt |
@@ -64,24 +65,47 @@ python3 -m http.server 8099
 To change a building's `status` to `In Progress` / `Complete`, edit its record;
 the map and tables update automatically.
 
-## Collaboration (current vs. live)
+## Collaboration: static vs. live (built-in)
 
-This is a **static** site, so the **Updates** notes and **Open Questions**
-status toggles are saved in each viewer's browser (`localStorage`) — fine for
-personal tracking and for a single coordinator publishing updates via the repo.
+The app runs in one of two modes, controlled entirely by `assets/js/config.js`.
 
-To make editing **truly multi-party and live**, add a managed backend (no server
-to maintain) and point the existing data layer at it:
+**Static mode (default).** With empty Supabase keys, the site reads
+`data/*.json` and saves **Updates** notes and **Open Questions** toggles in each
+viewer's browser (`localStorage`). Zero setup — great for publishing a shared,
+read-only plan where one coordinator maintains the data in-repo.
 
-1. Create a **Supabase** project; add `buildings`, `notes`, and `questions`
-   tables (mirroring the JSON shapes above).
-2. Replace the `fetch('data/*.json')` calls in `assets/js/data.js` with Supabase
-   client reads, and the `localStorage` writes in `assets/js/util.js`
-   (`pushNote`, `setOverride`) with table writes.
-3. Enable Supabase Realtime on `notes`/`questions` for live updates, and Row
-   Level Security + auth if you want a login-gated internal section.
+**Live mode (real-time, multi-party).** Fill in your Supabase project URL and
+anon key and the *same UI* becomes a shared, live workspace: coordination notes,
+open-question statuses, and building statuses sync across all stakeholders in
+real time, with a sign-in gate for editing. The Supabase client is vendored
+(`assets/vendor/supabase/`), so no build step is needed.
 
-The frontend is structured so this swap touches only the data layer.
+To turn on live mode:
+
+1. Create a **Supabase** project (free tier is fine).
+2. In the SQL editor, run [`supabase/schema.sql`](supabase/schema.sql) — it
+   creates the `buildings`, `notes`, and `question_status` tables, sets Row
+   Level Security (public read, authenticated write), and enables Realtime.
+3. Seed the buildings table:
+   ```bash
+   npm i @supabase/supabase-js
+   SUPABASE_URL=https://xxxx.supabase.co \
+   SUPABASE_SERVICE_KEY=<service_role_key> \
+   node supabase/seed.mjs
+   ```
+4. In `assets/js/config.js`, set `SUPABASE_URL` and `SUPABASE_ANON_KEY`
+   (the anon key is safe in client code; RLS protects writes).
+5. Create stakeholder logins under **Supabase → Authentication → Users**. Set
+   `REQUIRE_LOGIN_TO_EDIT = false` if you'd rather allow anonymous editing.
+
+The frontend is structured so this switch touches only `config.js` — every view
+already calls the unified `assets/js/backend.js` layer.
+
+## Continuous deployment
+
+`.github/workflows/pages.yml` publishes the site to GitHub Pages on every push
+to the default branch. In **Settings → Pages**, set **Source: GitHub Actions**
+(one time). No build step runs — the workflow uploads the repo as-is.
 
 ## Data note
 
